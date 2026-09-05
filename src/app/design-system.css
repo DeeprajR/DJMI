@@ -200,3 +200,7 @@
   .panel { break-inside: avoid; }
   .table-scroll { overflow: visible; }
 }
+
+.role-bank { color: #6d28d9; border-color: color-mix(in oklab, #6d28d9 40%, transparent); background: color-mix(in oklab, #6d28d9 10%, transparent); }
+
+.inline-form { display: inline-flex; margin: 0; }

@@ -16,7 +16,8 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/patients") ||
     pathname.startsWith("/admissions") ||
     pathname.startsWith("/requests") ||
-    pathname.startsWith("/admin");
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/bank");
 
   if (requiresAuth && !isAuthenticated) {
     const nextParam = encodeURIComponent(`${pathname}${search}`);
@@ -38,6 +39,7 @@ export const config = {
     "/admissions/:path*",
     "/requests/:path*",
     "/admin/:path*",
+    "/bank/:path*",
     "/sign-in",
   ],
 };

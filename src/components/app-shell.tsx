@@ -4,13 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore, type ReactNode } from "react";
 
-const navigation = [
+const clinicalNavigation = [
   { href: "/dashboard", label: "Overview", icon: "overview" },
   { href: "/patients", label: "Patients", icon: "patients" },
   { href: "/admissions", label: "Admissions", icon: "admissions" },
   { href: "/requests/new", label: "Requests", icon: "requests" },
   { href: "/profile", label: "Profile", icon: "profile" },
 ] as const;
+
+const bankNavigation = [
+  { href: "/bank", label: "Overview", icon: "overview" },
+  { href: "/bank/inventory", label: "Inventory", icon: "admissions" },
+  { href: "/bank/requests", label: "Requests", icon: "requests" },
+  { href: "/bank/demand", label: "Donors", icon: "patients" },
+  { href: "/bank/settings", label: "Settings", icon: "profile" },
+];
 
 export function AppIcon({ name }: { name: string }) {
   const paths: Record<string, ReactNode> = {
@@ -39,7 +47,9 @@ function subscribeNetwork(onChange: () => void) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isClinical = ["/dashboard", "/patients", "/admissions", "/requests", "/profile", "/admin"].some(
+  const isBank = pathname.startsWith("/bank");
+  const navigation = isBank ? bankNavigation : clinicalNavigation;
+  const isClinical = ["/dashboard", "/patients", "/admissions", "/requests", "/profile", "/admin", "/bank"].some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
   const online = useSyncExternalStore(subscribeNetwork, () => navigator.onLine, () => true);
@@ -58,8 +68,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       </nav>}
       <div className="workspace-content">
         <header className="app-topbar">
-          {isClinical ? <span className="brand"><AppIcon name="requests" /><span className="brand-copy"><span className="brand-title">Clinical workspace</span><span className="brand-subtitle">Blood request management</span></span></span> : <Brand />}
-          <div className="topbar-meta"><span className="trial-label">Hospital use trial</span>{isClinical ? <span className="role-badge role-doctor">Clinical team</span> : <Link className="button" href="/sign-in">Sign in</Link>}</div>
+          {isClinical ? <span className="brand"><AppIcon name="requests" /><span className="brand-copy"><span className="brand-title">{isBank ? "Blood bank" : "Clinical workspace"}</span><span className="brand-subtitle">{isBank ? "Stock, requests and donor recruitment" : "Blood request management"}</span></span></span> : <Brand />}
+          <div className="topbar-meta"><span className="trial-label">Hospital use trial</span>{isClinical ? <><span className={isBank ? "role-badge role-bank" : "role-badge role-doctor"}>{isBank ? "Blood bank" : "Clinical team"}</span><form method="post" action="/api/auth/sign-out" className="inline-form"><button type="submit" className="button">Sign out</button></form></> : <Link className="button" href="/sign-in">Sign in</Link>}</div>
         </header>
         {!online && <div className="notice notice-offline network-banner" role="status">You’re offline. Clinical data and all changes require a network connection. Reconnect before continuing.</div>}
         {children}

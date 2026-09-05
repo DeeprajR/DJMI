@@ -15,6 +15,13 @@
       "when": 1788634779879,
       "tag": "0001_new_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788648278125,
+      "tag": "0002_blood_bank",
+      "breakpoints": true
     }
   ]
 }
