@@ -27,6 +27,20 @@ Use this file as the single source of truth for implementation progress.
 - [x] Phase 9 - PWA installability and app-shell caching
 - [x] Phase 10 - Hardening, audit, and test coverage
 
+## Module 2 - Blood Bank Dashboard
+
+- [x] Repository layout reunified at the root (the dev branch was half-moved into `apps/hospital/` and did not build)
+- [x] `blood_bank` role, `/bank` guard, navigation and role badge
+- [x] Tables: `bank_settings`, `blood_bags`, `bank_decisions`, `donor_demand`, `donor_demand_confirmations` (`drizzle/0002_blood_bank.sql`)
+- [x] Inventory by bag with RFID identity; reader endpoint `POST /api/bank/bags/scan`
+- [x] Request queue with issue-from-stock decisions and donor demand for the shortfall
+- [x] 25-unit floor per group with one-click restocking demand
+- [x] Donor demand page: bot progress, confirmed-donor roster, counter marks
+- [x] Doctor's request view shows the bank's decision
+- [ ] First run against PostgreSQL (migration apply, seed, walkthrough) - blocked on database credentials
+
+See [context/module-2-blood-bank.md](context/module-2-blood-bank.md).
+
 ## Design System Rollout
 
 - [x] Apply supplied design system to all frontend screens

@@ -174,6 +174,17 @@ npm run typecheck
 npm run build
 ```
 
+## Blood Bank Dashboard (Module 2)
+
+- Sign in with a `blood_bank` account (`npm run seed:bank -- --email … --password … --name …`) and open `/bank`.
+- Inventory: one row per bag, identified by its RFID tag. `POST /api/bank/bags/scan` (header `X-Reader-Token`) is the reader's endpoint.
+- Requests: submitted requests are decided here - bags are issued oldest-expiry first, and any shortfall for whole blood / packed RBC becomes a `donor_demand` row for the Telegram donor bot (Module 3).
+- Floor: every group is kept at `bank_settings.min_units_per_group` (25 by default); "recruit for groups below floor" raises demand for the difference.
+- Donors: the bot reports confirmed donors into `donor_demand_confirmations`; mark them Donated / No-show / Cancelled at the counter and the bot updates their cooldown and thanks them.
+- The doctor's request view shows the bank's decision.
+
+The bot and its integration contract live in the sibling `bloody-project` repository (`docs/integration.md`).
+
 ## Frontend Design System
 
 The frontend follows [design-system-blood-app.md](design-system-blood-app.md).

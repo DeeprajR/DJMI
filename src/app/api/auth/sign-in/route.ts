@@ -110,5 +110,7 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return NextResponse.redirect(new URL(nextPath, request.url), 303);
+  const destination =
+    parsed.data.next ? nextPath : doctor.role === "blood_bank" ? "/bank" : nextPath;
+  return NextResponse.redirect(new URL(destination, request.url), 303);
 }

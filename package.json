@@ -17,7 +17,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "seed:admin": "tsx --conditions=react-server scripts/create-admin.ts",
-    "seed:doctor": "tsx --conditions=react-server scripts/create-doctor.ts"
+    "seed:doctor": "tsx --conditions=react-server scripts/create-doctor.ts",
+    "seed:bank": "tsx --conditions=react-server scripts/create-bank-user.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.0",

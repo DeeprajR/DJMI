@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/db/client";
-import { bloodRequests } from "@/db/schema";
+import { bankDecisions, bloodRequests, donorDemand } from "@/db/schema";
 import { requireDoctor } from "@/lib/auth/guard";
 import { bloodProductLabelMap } from "@/lib/blood-request/draft";
 
@@ -53,6 +53,14 @@ export default async function RequestViewPage({ params, searchParams }: RequestV
   if (!request) {
     notFound();
   }
+
+  const decision = await db.query.bankDecisions.findFirst({
+    where: eq(bankDecisions.bloodRequestId, request.id),
+  });
+  const demand = await db.query.donorDemand.findFirst({
+    where: eq(donorDemand.bloodRequestId, request.id),
+    orderBy: (t, { desc }) => [desc(t.createdAt)],
+  });
 
   const patientName = request.patientNameSnapshot || request.admission.patient.patientName;
   const patientAgeValue = request.patientAgeSnapshot ?? request.admission.patient.patientAge;
@@ -183,6 +191,26 @@ export default async function RequestViewPage({ params, searchParams }: RequestV
             </dd>
           </div>
         </dl>
+      </section>
+
+      <section className="panel" aria-labelledby="bank-heading">
+        <h2 id="bank-heading" className="text-2xl font-semibold">Blood bank response</h2>
+        {!decision ? (
+          <p className="empty-state mt-5">Awaiting the blood bank&apos;s decision.</p>
+        ) : (
+          <dl className="detail-grid mt-5">
+            <div><dt>Decision</dt><dd><span className="status-pill">{decision.decision}</span></dd></div>
+            <div><dt>Units issued</dt><dd>{decision.unitsIssued} of {decision.unitsRequested}</dd></div>
+            <div><dt>Decided</dt><dd>{new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(decision.decidedAt)}</dd></div>
+            {decision.note ? <div><dt>Note</dt><dd>{decision.note}</dd></div> : null}
+            {demand ? (
+              <div>
+                <dt>Donor recruitment</dt>
+                <dd>{demand.confirmedUnits}/{demand.units} donors confirmed · {demand.completedUnits} donated · {demand.status}</dd>
+              </div>
+            ) : null}
+          </dl>
+        )}
       </section>
 
       <section className="panel grid min-w-0 gap-6" aria-labelledby="samples-heading">

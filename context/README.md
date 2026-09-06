@@ -23,6 +23,7 @@ Source of truth for progress tracking remains [PHASE_CHECKLIST.md](../PHASE_CHEC
 | 10 | Hardening, audit, and test coverage | [phase-10-hardening.md](phase-10-hardening.md) |
 | — | Design system rollout | [design-system-rollout.md](design-system-rollout.md) |
 | — | Admin panel and RBAC | [admin-panel-rbac.md](admin-panel-rbac.md) |
+| — | Module 2: Blood bank dashboard | [module-2-blood-bank.md](module-2-blood-bank.md) |
 
 ## Workflow
 

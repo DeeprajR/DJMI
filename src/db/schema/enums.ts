@@ -32,7 +32,7 @@ export const admissionStatusEnum = pgEnum("admission_status", [
   "discharged",
 ]);
 
-export const userRoleEnum = pgEnum("user_role", ["doctor", "admin"]);
+export const userRoleEnum = pgEnum("user_role", ["doctor", "admin", "blood_bank"]);
 
 export const auditActorTypeEnum = pgEnum("audit_actor_type", [
   "doctor",

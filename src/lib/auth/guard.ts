@@ -14,6 +14,11 @@ export const getRequiredSession = cache(async () => {
 
 export async function requireDoctor() {
   const session = await getRequiredSession();
+  if (session.doctor.role === "blood_bank") {
+    // Signed in, just not clinical staff. Bouncing to /sign-in would loop: the proxy
+    // sends any authenticated visitor of /sign-in straight back to /dashboard.
+    redirect("/bank");
+  }
   if (session.doctor.role !== "doctor" && session.doctor.role !== "admin") {
     redirect("/sign-in");
   }
