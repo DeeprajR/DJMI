@@ -1,0 +1,36 @@
+# Render Blueprint — Module 3, the Telegram donor bot.
+#
+# Modules 1 and 2 deploy to Vercel from the repo root; only bot/ is deployed here.
+# A background worker, not a web service: the bot reaches Telegram by long polling
+# and takes work from the shared Neon database, so it needs no inbound port.
+#
+# Only one process may poll a given bot token. Stop any local `python -m app.main`
+# before this worker starts, or Telegram will reject one of them.
+services:
+  - type: worker
+    name: blood-donor-bot
+    runtime: python
+    plan: starter
+    region: ohio                 # same region as the Neon database (us-east-2)
+    rootDir: bot
+    buildCommand: pip install -e .
+    startCommand: python -m app.main
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.4"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      # Secrets — set these in the Render dashboard, never in this file.
+      - key: BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        sync: false
+      - key: DATABASE_URL          # Neon DIRECT endpoint, postgresql+asyncpg://…?ssl=require
+        sync: false
+      - key: DB_SCHEMA
+        value: donor_bot
+      - key: BANK_SYNC_ENABLED
+        value: "true"
+      - key: BANK_ID
+        value: hospital_bank

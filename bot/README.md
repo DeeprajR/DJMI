@@ -335,7 +335,7 @@ form wording, contrast pairs, control dimensions and service-worker behavior.
 |---|---|
 | Apps 1 + 2 (Next.js) | Vercel — `https://<project>.vercel.app`, HTTPS on the default hostname |
 | Database | Neon, or any managed PostgreSQL |
-| App 3 (Python) | Any always-on process — a 512 MB VPS under systemd is plenty |
+| App 3 (Python) | Render — a background worker built from `bot/` ([render.yaml](../render.yaml)) |
 
 The bot has **no public surface**: the bank hands it work by writing rows, and Telegram is
 reached by long polling. It only needs the database URL. One known caveat: doctor seal

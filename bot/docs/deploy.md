@@ -6,7 +6,7 @@ Three pieces, three places:
 |---|---|---|
 | Modules 1 + 2 — hospital + blood bank (Next.js) | **Vercel** | `https://<project>.vercel.app` |
 | Database | **Neon** (already provisioned, `neondb`) | private |
-| Module 3 — the Telegram bot (Python) | **a normal process** — this PC for now, a small VPS later | nothing public; it polls Telegram and talks to Neon |
+| Module 3 — the Telegram bot (Python) | **Render** — a background worker from `bot/` | nothing public; it polls Telegram and talks to Neon |
 
 The bot has no public surface in this setup: the bank hands it work by writing rows,
 and Telegram is reached by long polling. It just needs the database URL.
@@ -59,23 +59,51 @@ blocker for the pilot.
 Change all three before real users touch it: admin → `/admin` for doctors; the bank
 account via `npm run seed:bank -- --email … --password …` against the Neon URL.
 
-## 4. Run the bot
+## 4. Run the bot on Render
 
-The bot is a long-running process and cannot live on Vercel. Its `.env` already points at
-Neon (direct endpoint, `ssl=require`, `DB_SCHEMA=donor_bot`, `BANK_SYNC_ENABLED=true`).
+The bot is a long-running process and cannot live on Vercel. It runs on Render as a
+**background worker** — not a web service. With `BANK_SYNC_ENABLED=true` the bank hands it
+work by writing rows to Neon and Telegram is reached by long polling, so there is no
+inbound port to expose. (A free Render *web* service would spin down when idle and stop
+polling; background workers have no free tier, so this is the ~$7/month Starter plan.)
 
-**For now, on this PC:**
+[`render.yaml`](../../render.yaml) at the repo root is a Blueprint that declares the whole
+thing. In the Render dashboard: **New → Blueprint**, connect `DeeprajR/DJMI`, pick the
+branch, and Render reads `rootDir: bot`, installs with `pip install -e .` and starts
+`python -m app.main`.
 
-```powershell
-python -m app.main
+Set the three secrets in the dashboard — they are marked `sync: false` so they never live
+in the repo:
+
+| Name | Value |
+|---|---|
+| `BOT_TOKEN` | from @BotFather |
+| `BOT_USERNAME` | the bot's username, no `@` |
+| `DATABASE_URL` | the Neon **direct** endpoint, `postgresql+asyncpg://…/neondb?ssl=require` |
+
+`DB_SCHEMA=donor_bot`, `BANK_SYNC_ENABLED=true` and `BANK_ID` are already in the Blueprint.
+
+Note the two different Neon URLs: Vercel uses the **pooler** host with `sslmode=require`,
+the bot uses the **direct** host with `+asyncpg` and `ssl=require`. Same database, and the
+bot's asyncpg driver does not accept the pooler's `channel_binding` parameter.
+
+Only **one** copy of the bot may run at a time — Telegram rejects a second poller. Stop any
+local `python -m app.main` before the Render worker starts.
+
+Watch it come up under **Logs**; a healthy start looks like:
+
+```
+token OK, polling as @<your bot>
+starting bot, API on 0.0.0.0:8080
+aiogram.dispatcher: Run polling for bot @<your bot>
 ```
 
-**For the pilot, on any small Linux box** (Ubuntu, 512 MB is plenty):
+### Alternative: any Linux box
 
 ```bash
-git clone <bot repo> && cd bloody-project
+git clone https://github.com/DeeprajR/DJMI && cd DJMI/bot
 python3 -m venv .venv && .venv/bin/pip install -e .
-cp .env.example .env          # BOT_TOKEN, BOT_USERNAME, DATABASE_URL (Neon direct, ssl=require), DB_SCHEMA=donor_bot, BANK_SYNC_ENABLED=true
+cp .env.example .env          # BOT_TOKEN, BOT_USERNAME, DATABASE_URL, DB_SCHEMA=donor_bot
 ```
 
 `/etc/systemd/system/blood-bot.service`:
@@ -86,8 +114,8 @@ Description=Blood donor Telegram bot
 After=network-online.target
 
 [Service]
-WorkingDirectory=/opt/bloody-project
-ExecStart=/opt/bloody-project/.venv/bin/python -m app.main
+WorkingDirectory=/opt/DJMI/bot
+ExecStart=/opt/DJMI/bot/.venv/bin/python -m app.main
 Restart=always
 RestartSec=5
 Environment=PYTHONUNBUFFERED=1
@@ -100,9 +128,6 @@ WantedBy=multi-user.target
 sudo systemctl enable --now blood-bot
 journalctl -u blood-bot -f
 ```
-
-Only **one** copy of the bot may run at a time — Telegram rejects a second poller. Stop
-the PC copy before starting the server one.
 
 ## 5. Check it end to end
 
