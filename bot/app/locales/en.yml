@@ -1,0 +1,329 @@
+# Every donor-facing string. Adding Malayalam (PRD P1) means copying this file to
+# ml.yml and translating the values -- keys and structure must stay identical.
+
+common:
+  # Quoted because YAML 1.1 reads bare yes/no as booleans.
+  "yes": "Yes"
+  "no": "No"
+  back: "Back"
+  skip: "Skip"
+  dont_know: "I don't know"
+  cancel: "Cancel"
+  something_went_wrong: "Something went wrong. Please try /start again."
+  support: "Need help? Contact {support}"
+
+onboarding:
+  welcome: |
+    <b>Welcome!</b> 🩸
+
+    This bot connects you to nearby blood requests from the blood bank.
+    You will only ever hear from us when you can actually help.
+
+    Registration takes about a minute and is all buttons.
+  welcome_from_request: |
+    <b>Someone nearby needs blood.</b> 🩸
+
+    Register first (about a minute, all buttons) and we will take you
+    straight back to this request.
+  ask_contact: |
+    First, share your phone number so the blood bank can reach you on the day.
+    Tap the button below -- Telegram sends it for you.
+  contact_button: "📱 Share my number"
+  contact_not_own: |
+    That is someone else's contact. Please send your own number with the
+    <b>📱 Share my number</b> button below.
+  contact_typed: |
+    Thanks -- but please use the <b>📱 Share my number</b> button below rather than
+    typing it.
+
+    Telegram sends the number itself, which is how the blood bank knows it is really
+    yours. Typed numbers cannot be verified.
+
+    If you cannot see the button, tap the keyboard icon in the message box.
+  ask_name: "Thanks! What should we call you?"
+  name_too_short: "That looks too short. Please send your name."
+  ask_dob_year: "Which year were you born?"
+  ask_dob_month: "And the month?"
+  ask_dob_day: "And the day?"
+  dob_invalid: "That date does not exist. Let's try again."
+  age_too_young: |
+    Thank you for wanting to help. Donors must be at least {min_age} years old.
+    Come back when you are -- we will be here.
+  age_too_old: |
+    Thank you for everything you have given. Our blood bank registers donors
+    up to {max_age}. You can still help by sharing requests with others.
+  ask_sex: "Your sex? (This sets how long we wait between your donations.)"
+  sex_male: "Male"
+  sex_female: "Female"
+  sex_other: "Other"
+  ask_blood_group: "What is your blood group?"
+  blood_group_unknown_note: |
+    No problem. We will note it down at your first donation, and you will start
+    getting requests once it is confirmed.
+  ask_district: "Which district are you in?"
+  ask_city: "And which town or city?"
+  city_other: "Somewhere else in {district}"
+  ask_donated_before: "Have you donated blood before?"
+  ask_last_donation_year: "Roughly when was your last donation? Year:"
+  ask_last_donation_month: "And the month?"
+  ask_last_donation_day: "And the day?"
+  last_donation_future: "That date is in the future. Let's pick again."
+  ask_consent: |
+    Last thing.
+
+    We will store your name, number, date of birth, blood group and donation
+    dates so we can match you to requests. We will never share your details
+    with patients or their families, and you can delete everything any time
+    from the menu.
+
+    May we send you blood requests you are eligible for?
+  consent_yes: "Yes, notify me"
+  consent_no: "Not now"
+  consent_declined: |
+    Understood -- we will not send you any requests.
+    Send /start whenever you change your mind.
+  done: |
+    <b>You are registered.</b> ✅
+
+    {name} · {blood_group} · {city}
+
+    We will message you only when someone nearby needs your blood group.
+  done_unknown_group: |
+    <b>You are registered.</b> ✅
+
+    {name} · {city}
+
+    Your blood group will be confirmed at your first donation, and requests
+    will start arriving after that.
+  cooldown_note: "You will be eligible to donate again from {date}."
+  already_registered: |
+    You are already registered, {name}. 🩸
+    We will ping you when someone nearby needs {blood_group}.
+
+request:
+  card: |
+    🩸 <b>{blood_group} blood needed</b>
+
+    🏥 {hospital}
+    📍 {city}, {district}
+    🕒 {needed_by}
+    👥 {units_line}
+  card_with_notes: |
+    🩸 <b>{blood_group} blood needed</b>
+
+    🏥 {hospital}
+    📍 {city}, {district}
+    🕒 {needed_by}
+    👥 {units_line}
+
+    ℹ️ {notes}
+  needed_by_day: "Needed by {day}"
+  needed_by_time: "Before {time}"
+  units_one: "1 unit needed · {units_remaining} still open"
+  units_many: "{units_needed} units needed · {units_remaining} still open"
+  accept: "✅ I can donate"
+  decline: "Not this time"
+  accepted_ack: "Thank you. Two quick questions before we confirm you. 👇"
+  declined_ack: |
+    No problem at all -- thank you for reading it.
+    We will let you know about the next one.
+  not_found: "That request link is not valid any more."
+  closed_thanks: |
+    <b>This request is already closed.</b>
+
+    Thank you for coming -- that instinct is exactly what keeps the pool alive.
+    You are registered, and we will reach you the moment someone nearby needs
+    your blood group.
+  filled_meanwhile: |
+    <b>This request has been filled.</b>
+
+    Enough donors confirmed while you were deciding, so please do not travel.
+    You are first in line if someone drops out -- we will message you if a place
+    opens. Thank you for stepping up.
+  expired: |
+    <b>This request has expired.</b>
+
+    The hospital needed the blood by {needed_by}. Thank you for reading it.
+  cancelled: "This request was withdrawn by the blood bank."
+  ineligible:
+    UNKNOWN_GROUP: |
+      We do not have your blood group on file yet, so we cannot match you to this
+      request. It gets confirmed at your first donation.
+    GROUP_MISMATCH: |
+      This patient needs {blood_group}, which your group cannot be given to.
+      We will reach you when a matching request comes up.
+    OTHER_DISTRICT: |
+      This request is in {district} and you are registered in {donor_district}.
+      We only send requests from your own district so nobody makes a wasted trip.
+    TOO_YOUNG: "Donors must be at least {min_age} years old."
+    TOO_OLD: "Our blood bank registers donors up to {max_age}."
+    COOLDOWN: |
+      You donated recently -- your body needs the full gap before the next one.
+      You will be eligible again from <b>{next_date}</b>, and we will be in touch.
+    SNOOZED: |
+      Your notifications are snoozed until {until}. You can turn them back on from
+      the menu any time.
+    OPTED_OUT: "You have turned off request notifications. Send /start to turn them back on."
+    NOT_REGISTERED: "Please finish registering first -- send /start."
+    ALREADY_ENGAGED: "You have already responded to this request."
+
+questionnaire:
+  intro: "Question {index} of {total}"
+  weight: "Do you weigh 45 kg or more?"
+  feeling_well: "Are you feeling well today?"
+  recent_illness: "Have you had a fever or illness in the last 2 weeks?"
+  medication: "Are you currently taking antibiotics or other medication?"
+  tattoo: "Have you had a tattoo or piercing in the last 6 months?"
+  alcohol: "Have you had alcohol in the last 24 hours?"
+  pregnancy: "Are you currently pregnant, or have you given birth in the last year?"
+  fail:
+    # Never a verdict -- a reason this trip would not go ahead today.
+    weight: |
+      The blood bank asks donors to be at least 45 kg, so we will sit this one out.
+    feeling_well: |
+      Donating is hard on the body when you are not at your best -- rest today.
+    recent_illness: |
+      The blood bank waits a couple of weeks after a fever or illness before a
+      donation, so this one is not the right time.
+    medication: |
+      The blood bank waits until a course of medication is finished before a
+      donation, so this one is not the right time.
+    tattoo: |
+      The blood bank waits six months after a tattoo or piercing before a donation.
+    alcohol: |
+      The blood bank asks for 24 alcohol-free hours before donating.
+    pregnancy: |
+      The blood bank does not take donations during pregnancy or in the months
+      after a birth. Take care of yourself.
+  eliminated: |
+    <b>Not this one -- and that is fine.</b>
+
+    {reason}
+
+    This does not affect your registration at all. You stay on the list and we
+    will message you about the next request you match.
+
+confirmation:
+  confirmed: |
+    <b>You are confirmed.</b> ✅ Thank you.
+
+    🏥 {hospital}
+    📍 {address}
+    🕒 {when}
+    🩸 Bring a photo ID.
+
+    If something changes, tell the blood bank as early as you can -- your place
+    can then go to someone else.
+  when_slot: "Your slot: {time}"
+  when_before: "Any time before {time}"
+  cancel_button: "Cancel my slot"
+  card_confirmed: "✅ You are confirmed for this request."
+  card_declined: "You passed on this request."
+  card_eliminated: "Not this one -- your registration is unaffected."
+  card_filled: "This request has been filled."
+  card_expired: "This request expired."
+
+waitlist:
+  placed: |
+    <b>Filled, just before you.</b>
+
+    Enough donors confirmed while you were answering, so we will not send you
+    to the hospital today. You are first in line if anyone drops out -- we will
+    message you if a place opens.
+
+    Thank you for saying yes.
+
+completion:
+  thanks: |
+    <b>Thank you.</b> 🩸
+
+    Your donation at {hospital} is recorded. Somebody has more time because
+    you turned up.
+
+    You will be eligible to donate again from <b>{next_date}</b>, and we will
+    stay quiet until then.
+
+regions:
+  districts:
+    - Thiruvananthapuram
+    - Kollam
+    - Pathanamthitta
+    - Alappuzha
+    - Kottayam
+    - Idukki
+    - Ernakulam
+    - Thrissur
+    - Palakkad
+    - Malappuram
+    - Kozhikode
+    - Wayanad
+    - Kannur
+    - Kasaragod
+  cities:
+    Thiruvananthapuram: [Thiruvananthapuram, Neyyattinkara, Attingal, Varkala, Nedumangad, Kattakada]
+    Kollam: [Kollam, Karunagappally, Punalur, Kottarakkara, Paravur, Chathannoor]
+    Pathanamthitta: [Pathanamthitta, Adoor, Thiruvalla, Pandalam, Ranni, Konni]
+    Alappuzha: [Alappuzha, Cherthala, Kayamkulam, Mavelikkara, Chengannur, Haripad]
+    Kottayam: [Kottayam, Changanassery, Pala, Vaikom, Ettumanoor, Erattupetta]
+    Idukki: [Thodupuzha, Kattappana, Munnar, Nedumkandam, Adimali, Painavu]
+    Ernakulam: [Kochi, Aluva, Perumbavoor, Muvattupuzha, Angamaly, Kothamangalam, Tripunithura]
+    Thrissur: [Thrissur, Chalakudy, Irinjalakuda, Kodungallur, Guruvayur, Kunnamkulam]
+    Palakkad: [Palakkad, Ottapalam, Shoranur, Chittur, Mannarkkad, Pattambi]
+    Malappuram: [Malappuram, Manjeri, Tirur, Perinthalmanna, Ponnani, Nilambur]
+    Kozhikode: [Kozhikode, Vadakara, Koyilandy, Feroke, Ramanattukara, Thamarassery]
+    Wayanad: [Kalpetta, Sulthan Bathery, Mananthavady, Meppadi, Panamaram]
+    Kannur: [Kannur, Thalassery, Payyanur, Taliparamba, Mattannur, Iritty]
+    Kasaragod: [Kasaragod, Kanhangad, Nileshwaram, Cheruvathur, Manjeshwar]
+
+menu:
+  open_requests: "🩸 Open requests"
+  my_account: "👤 My account"
+  help: "❓ Help"
+  help_text: |
+    This bot sends you blood requests from the blood bank that match your blood
+    group, your district, and how recently you last donated.
+
+    You will never be asked about a patient, and your number is never shared
+    with anyone outside the blood bank.
+
+    {support}
+
+fallback:
+  unregistered: |
+    I did not understand that. To register as a donor, send /start.
+
+    {support}
+  registered: |
+    I did not understand that. You are registered, so there is nothing you need to
+    do -- we will message you when someone nearby needs your blood group.
+
+    {support}
+  not_text: "I can only read text and the buttons I send. Send /start if you are stuck."
+  stale_button: "That button is from an old message. Send /start to continue."
+
+admin:
+  card: |
+    {card}
+
+    📊 <b>Live</b> · {accepted} accepted · {confirmed}/{units} confirmed · {completed} donated
+    👤 {notified} donors notified
+    {status}
+  status_open: "🟢 Open -- keep sharing the link below."
+  status_filled: "✅ Filled -- enough donors confirmed. You can stop sharing."
+  status_completed: "🎉 Completed -- every unit collected. Thank you."
+  status_cancelled: "⛔ Withdrawn by the blood bank. Please stop sharing."
+  status_expired: "⌛ Expired unfilled. Please stop sharing."
+  refresh: "🔄 Refresh"
+  refreshed: "Updated"
+  share: |
+    🩸 URGENT: {blood_group} blood needed
+
+    Units: {units}
+    Needed by: {needed_by}
+    Where: {hospital}, {address}, {city}
+
+    If you are {blood_group}-compatible, in {district}, and can donate, tap this link. It takes a minute to register and you will be told exactly where to go:
+    {link}
+
+    Please forward to anyone who might help. No patient details are shared.
+  not_admin: "This button is for volunteer admins."
