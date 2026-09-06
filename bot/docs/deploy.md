@@ -6,7 +6,7 @@ Three pieces, three places:
 |---|---|---|
 | Modules 1 + 2 — hospital + blood bank (Next.js) | **Vercel** | `https://<project>.vercel.app` |
 | Database | **Neon** (already provisioned, `neondb`) | private |
-| Module 3 — the Telegram bot (Python) | **Render** — a background worker from `bot/` | nothing public; it polls Telegram and talks to Neon |
+| Module 3 — the Telegram bot (Python) | **Fly.io** — one machine built from `bot/` | nothing public; it polls Telegram and talks to Neon |
 
 The bot has no public surface in this setup: the bank hands it work by writing rows,
 and Telegram is reached by long polling. It just needs the database URL.
@@ -59,44 +59,67 @@ blocker for the pilot.
 Change all three before real users touch it: admin → `/admin` for doctors; the bank
 account via `npm run seed:bank -- --email … --password …` against the Neon URL.
 
-## 4. Run the bot on Render
+## 4. Run the bot on Fly.io
 
-The bot is a long-running process and cannot live on Vercel. It runs on Render as a
-**background worker** — not a web service. With `BANK_SYNC_ENABLED=true` the bank hands it
-work by writing rows to Neon and Telegram is reached by long polling, so there is no
-inbound port to expose. (A free Render *web* service would spin down when idle and stop
-polling; background workers have no free tier, so this is the ~$7/month Starter plan.)
+The bot is a long-running process and cannot live on Vercel. It runs on Fly as a single
+machine with **no public port**: with `BANK_SYNC_ENABLED=true` the bank hands it work by
+writing rows to Neon, and Telegram is reached by long polling.
 
-[`render.yaml`](../../render.yaml) at the repo root is a Blueprint that declares the whole
-thing. In the Render dashboard: **New → Blueprint**, connect `DeeprajR/DJMI`, pick the
-branch, and Render reads `rootDir: bot`, installs with `pip install -e .` and starts
-`python -m app.main`.
+That "no port" detail is load-bearing. [`fly.toml`](../fly.toml) deliberately has no
+`[http_service]` and no `[[services]]` block, which is what keeps Fly from auto-stopping
+the machine when it sees no inbound traffic. A bot stopped for being idle is a bot that is
+not polling, and donors would go unnotified.
 
-Set the three secrets in the dashboard — they are marked `sync: false` so they never live
-in the repo:
+**A note on cost.** Fly withdrew its free allowance (3 × `shared-cpu-1x` 256 MB) for new
+organizations in late 2024. Older accounts still have it. On a newer account this machine
+is usage-billed at roughly $2/month; check your plan before assuming it is free.
 
-| Name | Value |
-|---|---|
-| `BOT_TOKEN` | from @BotFather |
-| `BOT_USERNAME` | the bot's username, no `@` |
-| `DATABASE_URL` | the Neon **direct** endpoint, `postgresql+asyncpg://…/neondb?ssl=require` |
+```bash
+cd bot
+fly launch --no-deploy --copy-config --name blood-donor-bot
+```
 
-`DB_SCHEMA=donor_bot`, `BANK_SYNC_ENABLED=true` and `BANK_ID` are already in the Blueprint.
+`--copy-config` makes Fly use the committed `fly.toml` instead of generating one, and
+`--no-deploy` stops it launching before the secrets exist. Run it from `bot/` so the build
+context is the bot alone — from the repo root Fly would detect the Next.js app instead.
+
+Set the secrets (they are not in `fly.toml`, which is public):
+
+```bash
+fly secrets set   BOT_TOKEN='<from @BotFather>'   BOT_USERNAME='<username, no @>'   DATABASE_URL='postgresql+asyncpg://<user>:<pw>@<neon-direct-host>/neondb?ssl=require'
+```
 
 Note the two different Neon URLs: Vercel uses the **pooler** host with `sslmode=require`,
-the bot uses the **direct** host with `+asyncpg` and `ssl=require`. Same database, and the
+the bot uses the **direct** host with `+asyncpg` and `ssl=require`. Same database — the
 bot's asyncpg driver does not accept the pooler's `channel_binding` parameter.
 
-Only **one** copy of the bot may run at a time — Telegram rejects a second poller. Stop any
-local `python -m app.main` before the Render worker starts.
+```bash
+fly deploy
+fly scale count 1        # exactly one: Telegram rejects a second poller on one token
+fly logs
+```
 
-Watch it come up under **Logs**; a healthy start looks like:
+A healthy start looks like:
 
 ```
 token OK, polling as @<your bot>
 starting bot, API on 0.0.0.0:8080
 aiogram.dispatcher: Run polling for bot @<your bot>
 ```
+
+The operator scripts ship in the image, so volunteer admins can be whitelisted without a
+redeploy:
+
+```bash
+fly ssh console -C "python scripts/add_admin.py <telegram id> --name 'Volunteer'"
+```
+
+If the machine is OOM-killed, raise `memory` in `fly.toml` to `512mb` and redeploy; the
+bot idles around 150 MB.
+
+Only **one** copy of the bot may run at a time. Stop any local `python -m app.main` before
+deploying, or Telegram will drop one of the two with "terminated by other getUpdates
+request".
 
 ### Alternative: any Linux box
 
