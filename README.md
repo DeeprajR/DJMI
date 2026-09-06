@@ -20,6 +20,11 @@ contract is two tables in the shared database, described in
 The Next.js app owns everything in the `public` schema and creates it with Drizzle
 migrations; the bot owns the `donor_bot` schema. Neither writes the other's tables.
 
+Current Status:
+- QA test = IN-PROGRESS
+- Stock update using RFID = Pending
+- Telegram Bot deployment = Pending
+
 ## Quick start
 
 ```bash
@@ -38,7 +43,7 @@ cp .env.example .env          # BOT_TOKEN, BOT_USERNAME, DATABASE_URL, DB_SCHEMA
 python -m app.main            # bot + inbound API on :8080 + wave ticker
 ```
 
-Only **one** copy of the bot may run at a time — Telegram rejects a second poller.
+Only **one** copy of the bot may run at a time — Telegram rejects a second poller. (in development)
 
 ## Docs
 
