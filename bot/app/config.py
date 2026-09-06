@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from functools import lru_cache
 
-from pydantic import Field, field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,8 +35,13 @@ class Settings(BaseSettings):
 
     # Inbound API
     api_host: str = "0.0.0.0"
-    api_port: int = 8080
-    blood_bank_secrets: dict[str, str] = Field(default_factory=lambda: {"demo_bank": "dev-secret"})
+    # PaaS hosts (Render, Railway, Heroku) inject the port to bind as PORT and route to
+    # whatever listens on it. API_PORT wins so a local .env can still override.
+    api_port: int = Field(8080, validation_alias=AliasChoices("API_PORT", "PORT"))
+    #: Per-bank HMAC secrets. Empty by default: an unconfigured bank id is rejected, so a
+    #: deployment that forgets to set this refuses inbound calls rather than accepting
+    #: ones signed with a secret published in this repository.
+    blood_bank_secrets: dict[str, str] = Field(default_factory=dict)
 
     # Distribution (PRD 7.5)
     wave_size: int = 20

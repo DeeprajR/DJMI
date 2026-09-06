@@ -335,7 +335,7 @@ form wording, contrast pairs, control dimensions and service-worker behavior.
 |---|---|
 | Apps 1 + 2 (Next.js) | Vercel — `https://<project>.vercel.app`, HTTPS on the default hostname |
 | Database | Neon, or any managed PostgreSQL |
-| App 3 (Python) | Fly.io — one machine built from `bot/` ([fly.toml](fly.toml)), no public port |
+| App 3 (Python) | Render free web service from `bot/` ([render.yaml](../render.yaml)), kept awake by a 5-minute pinger |
 
 The bot has **no public surface**: the bank hands it work by writing rows, and Telegram is
 reached by long polling. It only needs the database URL. One known caveat: doctor seal

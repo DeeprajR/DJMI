@@ -1,0 +1,45 @@
+# Render Blueprint — Module 3, the Telegram donor bot.
+#
+# Modules 1 and 2 deploy to Vercel from the repo root; only bot/ is deployed here.
+#
+# A *web* service on the free plan, not a background worker: Render has no free
+# worker tier. The bot already runs a FastAPI app in the same event loop as the
+# poller, so it has a port to bind and /healthz to answer on.
+#
+# Free web services spin down after 15 minutes with no inbound request, which
+# would stop the bot polling. Keep an external monitor (UptimeRobot, cron-job.org)
+# hitting /healthz every 5 minutes. See bot/docs/deploy.md.
+#
+# Only one process may poll a given bot token, so this must stay at one instance.
+services:
+  - type: web
+    name: blood-donor-bot
+    runtime: python
+    plan: free
+    region: ohio                 # same region as the Neon database (us-east-2)
+    rootDir: bot
+    buildCommand: pip install -e .
+    startCommand: python -m app.main
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.4"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      # Secrets — set these in the Render dashboard, never in this file.
+      - key: BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        sync: false
+      - key: DATABASE_URL          # Neon DIRECT endpoint, postgresql+asyncpg://…?ssl=require
+        sync: false
+      - key: DB_SCHEMA
+        value: donor_bot
+      - key: BANK_SYNC_ENABLED
+        value: "true"
+      - key: BANK_ID
+        value: hospital_bank
+      # BLOOD_BANK_SECRETS is deliberately unset. The bank hands work over the shared
+      # database, so the inbound HTTP API is unused — and unset means every signed
+      # request is rejected, which matters because this service has a public URL.
