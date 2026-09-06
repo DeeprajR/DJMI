@@ -3,3 +3,14 @@ node_modules
 .env
 .next/
 tsconfig.tsbuildinfo
+
+# --- module 3: the Python donor bot ---
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+*.db
+*.db-shm
+*.db-wal
